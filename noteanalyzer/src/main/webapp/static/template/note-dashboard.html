@@ -1,0 +1,38 @@
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">Notes Dashboard</div>
+		<div class="panel-body">
+			<div class="row"></div>
+			<div>
+			<form name="noteAddForm">
+				<section id="noteAnalyzerText" class="noteAnalyzerTextClass">
+					<input type="text" id="noteAnalyzertext" required
+						class="noteAnalyzerTextBox"
+						placeholder="Please enter your address"
+						ng-model="vm.inputZipCode" />
+					<button type="button" id="noteUpload" class="btn btn-primary"  ng-disabled= "!noteAddForm.$valid"
+						ng-click="vm.noteAnalyzer('dashboardNoteUpload')">Add</button>
+				</section>
+			</form>	
+				<section id="noteAnalyzerUpload" class="noteAnalyzerUploadClass">
+					<input file-model="myFile" type="file" class="noteFileUploadBatch" />
+					<button type="button" id="uploadNoteBatch" class="btn btn-primary"
+						ng-click="uploadFile()">Upload</button>
+					<p>
+						<a href="templateDownload">Download Note Template</a>
+					</p>
+				</section>
+				<br /> <br /> <br /> <br />
+				<div>
+
+					<div id="serviceGrid" ui-grid-move-columns ui-grid-selection
+						ui-grid-resize-columns ui-grid-pinning ui-grid-exporter
+						ui-grid-auto-resize ui-grid-edit ui-grid="vm.serviceGrid"></div>
+				</div>
+				<!-- ui-grid-pagination -->
+			</div>
+
+		</div>
+	</div>
+
+</div>

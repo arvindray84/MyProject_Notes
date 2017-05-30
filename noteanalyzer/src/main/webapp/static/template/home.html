@@ -1,0 +1,85 @@
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">Notes Analyzer</div>
+		<div class="panel-body">
+			<div class="row" style="padding-bottom: 5%; padding-bottom: 3%;">
+				<div >
+					
+					<div class="row">
+
+						<h2 class="text-center" style="padding-bottom: 3%">Note
+							Analyzer</h2>
+					<form name="noteAnalayzeForm">
+						<section id="noteAnalyzerText" class="noteAnalyzerTextClass">
+							<input type="text" id="noteAnalyzertext"
+								class="noteAnalyzerTextBox"
+								placeholder="Please enter your property zipcode" required maxlength="50"  pattern="[0-9]+" title="This field can contain only  numeric characters.."
+								ng-model="zipCode" />
+							<button type="button" id="uploadNote" class="btn btn-primary" ng-disabled= "!noteAnalayzeForm.$valid"
+								ng-click="noteAnalyzed()">Analyze</button>
+						</section>
+						</form>
+						<form name="noteAnalayzeUploadForm">
+						<section id="noteAnalyzerUpload" class="noteAnalyzerUploadClass">
+							<input file-model="myFile" type="file" 
+								class="noteFileUploadBatch" />
+							<button type="button" id="uploadNoteBatch" 
+								class="btn btn-primary" ng-click="uploadFile()">Analyze</button>
+							<p>
+								<a href="templateDownload">Download Note Template</a>
+							</p>
+						</section>
+						</form>
+						</div>
+						<div class="row">
+						<form name="autocompleteFormFromGoogle" style="margin-left: 60px">
+						<section id="autocompleteSection" >
+						<div id="locationField">
+      <input id="autocompleteGoogle" placeholder="Enter your address" class="noteAnalyzerTextBox"
+             onFocus="geolocate()" type="text"></input>
+    </div>
+
+    <table id="address">
+      <tr>
+        <td class="label">Street address</td>
+        <td class="slimField"><input class="field" id="street_number"
+              disabled="true"></input></td>
+        <td class="wideField" colspan="2"><input class="field" id="route"
+              disabled="true"></input></td>
+      </tr>
+      <tr>
+        <td class="label">City</td>
+        <!-- Note: Selection of address components in this example is typical.
+             You may need to adjust it for the locations relevant to your app. See
+             https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+        -->
+        <td class="wideField" colspan="3"><input class="field" id="locality"
+              disabled="true"></input></td>
+      </tr>
+      <tr>
+        <td class="label">State</td>
+        <td class="slimField"><input class="field"
+              id="administrative_area_level_1" disabled="true"></input></td>
+        <td class="label">Zip code</td>
+        <td class="wideField"><input class="field" id="postal_code"
+              disabled="true"></input></td>
+      </tr>
+      <tr>
+        <td class="label">Country</td>
+        <td class="wideField" colspan="3"><input class="field"
+              id="country" disabled="true"></input></td>
+      </tr>
+    </table>
+    </section>
+			</form>			
+				</div>		
+					
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+	<script type="text/javascript">initAutocomplete();</script>
+</div>

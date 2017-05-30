@@ -1,0 +1,132 @@
+body, #mainWrapper {
+	height: 70%;
+	background-color:rgb(245, 245, 245);
+}
+
+body, .form-control{
+	font-size:12px!important;
+}
+
+.floatRight{
+	float:right;
+	margin-right: 18px;
+}
+
+.has-error{
+	color:red;
+}
+
+.formcontainer{
+	background-color: #DAE8E8;
+	padding: 20px;
+}
+
+.tablecontainer{
+	padding-left: 20px;
+}
+
+.generic-container {
+  width:80%;
+  margin-left: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #EAE7E7;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 0 30px black;
+}
+
+.custom-width {
+    width: 80px !important;
+}
+div.block{
+  overflow:hidden;
+  padding-bottom: 15px;
+}
+div.block label{
+  width:160px;
+  display:block;
+  float:left;
+  text-align:left;
+  padding-right:1em;
+  font-size: 14px;
+}
+div.block .input{
+  margin-left:4px;
+  float:left;
+}
+
+.bottom {
+    border-bottom: 1px solid #ccc;
+}
+.block-content-header {
+     padding-bottom: 10px;
+     padding-top: 10px;
+}
+.noteAnalyzerTextBox{
+ line-height:25px;
+ font-size:14px;
+ width:25rem;
+ padding-left:10px;
+ margin-left:5px;
+ vertical-align:middle;
+ 
+}
+.noteAnalyzerUploadClass{
+	width: 50%; 
+	float: right; 
+	padding-left: 15%
+}
+.noteAnalyzerTextClass{
+	width: 50%; 
+	float: left; 
+	padding-left: 5%; 
+	
+}
+.noteFileUploadBatch{
+	float: left;
+    padding-top: 10px;
+    width: 20rem;
+}
+.noteDateClass{
+	margin-left:4px;
+}
+.noteDateAligment{
+	float:left;
+}
+.noteDateCalAligment{
+	float:left;
+	width:4%;
+}
+.calButton{
+	margin-left: 2px !important;
+    padding: 0px 2px 0px 4px;
+}
+.requiredField:after{
+	content:"*";
+	color:red;
+	font-weight:900;
+}
+.inputError{
+	color:red;
+	margin-left:4px;
+}
+
+/* .tooltip-color + .tooltip > .tooltip-inner {background-color: #00ffff;}
+.tooltip-color + .tooltip > .tooltip-arrow { border-bottom-color:#00ffff; } */
+
+.glyphicon-info-sign{
+    color: green;
+    padding-left: 6px;
+}
+
+.profilePanel{
+	width:50%;
+	margin:5% auto;
+}
+
+.profile-button{
+	float:left;
+	margin:10px;
+}

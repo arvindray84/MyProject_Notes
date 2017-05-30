@@ -1,0 +1,33 @@
+<div class="container">
+	<div class="panel panel-default profilePanel">
+		<div class="panel-heading">Profile</div>
+		<div class="panel-body">
+			<legend>
+				<i class="ion-clipboard"></i> Edit My Profile
+			</legend>
+			<form method="post" ng-submit="updateProfile()">
+				
+				<div class="form-group">
+					<label class="control-label"><i class="ion-person"></i>
+						Display Name</label> <input type="text" class="form-control" required autofocus
+						maxlength="90"  pattern="[a-zA-Z0-9._\s]+" title="This field can contain only alpha numeric characters.." ng-model="user.displayName" />
+				</div>
+				<div class="form-group">
+					<label class="control-label"><i class="ion-at"></i> Email
+						Address</label> <input type="email" class="form-control" readonly disabled
+						ng-model="user.email" />
+				</div>
+				<div class="form-group">
+					<label class="control-label"><i class="ion-at"></i> Phone Number
+						</label> <input type="text" class="form-control"
+						ng-model="user.phoneNumber" />
+				</div>
+		
+				<button class="btn btn-lg btn-success profile-button">Update Information</button>
+				
+			</form>
+			<button class="btn btn-lg btn-info profile-button" ng-click="changePassword()">Change Password</button>
+		</div>
+	</div>
+
+</div>

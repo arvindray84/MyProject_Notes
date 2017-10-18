@@ -1,5 +1,5 @@
 
-var noteApp = angular.module('NoteApp', ['ngResource', 'xeditable', 'ngMessages', 'ngAnimate', 'toastr', 'ui.router', 'ngAnimate', 'ui.grid', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.grid.resizeColumns', 'ui.bootstrap', 'ui.grid.edit', 'ui.grid.pagination']);
+var noteApp = angular.module('NoteApp', ['ngResource', 'xeditable', 'ngMessages', 'ngAnimate', 'toastr', 'ui.router', 'ngAnimate', 'ui.grid', 'ui.grid.moveColumns', 'ui.grid.selection', 'ui.grid.resizeColumns', 'ui.bootstrap', 'ui.grid.edit', 'isteven-multi-select','ui.grid.pagination']);
 
 noteApp.config(function($stateProvider, $urlRouterProvider) {
 
@@ -38,7 +38,7 @@ noteApp.config(function($stateProvider, $urlRouterProvider) {
 			templateUrl : 'static/template/home.html'
 		}).state('noteDashboard', {
 		url : '/noteDashboard',
-		controller : 'NoteDetailCtrl',
+		controller : 'NoteDashboardCtrl',
 		controllerAs : 'vm',
 		cache: false,
 		params : {
@@ -88,10 +88,19 @@ noteApp.config(function($stateProvider, $urlRouterProvider) {
 				skipIfLoggedIn : skipIfLoggedIn
 			}
 			
+		}).state('noteInputForm', {
+			url : '/noteInputForm',
+			templateUrl : 'static/template/noteInputFormNew.html',
+			controller : 'noteInputFormController',
+			cache: false,
+			resolve : {
+				skipIfLoggedIn : skipIfLoggedIn
+			}
+			
 		})
 		.state('profile', {
 			url : '/profile',
-			templateUrl : 'static/template/profile.html',
+			templateUrl : 'static/template/profile_new.html',
 			controller : 'ProfileCtrl',
 			cache: false,
 			params : {
@@ -102,10 +111,23 @@ noteApp.config(function($stateProvider, $urlRouterProvider) {
 				loginRequired : loginRequired,
 				skipIfLoggedIn : skipIfLoggedIn
 			}
-		}).state('subscription', {
-			url : '/subscription',
-			templateUrl : 'static/template/subscription.html',
-			controller : 'SubscriptionCtrl',
+		}).state('noteDetail', {
+			url : '/noteDetail',
+			templateUrl : 'static/template/noteDetailNew.html',
+			controller : 'NoteDetailCtrl',
+			cache: false,
+			params : {
+				'referer' : null,
+				'loginState' : null
+			},
+			resolve : {
+				loginRequired : loginRequired,
+				skipIfLoggedIn : skipIfLoggedIn
+			}
+		}).state('calculator', {
+			url : '/calculator',
+			templateUrl : 'static/template/calculator.html',
+			controller : 'CalculatorCtrl',
 			cache: false,
 			params : {
 				'referer' : null,
@@ -164,9 +186,11 @@ noteApp.run(function($rootScope, $state, $location, $auth){
     });
 });
 
-noteApp.factory('$auth', function($window,$state,toastr) {
+
+noteApp.factory('$auth', function($window,$state,toastr,$rootScope) {
 	var auth = this;
 	var isAuthenticated = function() {
+		$rootScope.loggedInUserDisplayName=auth.getUserDisplayName();
 		if (!auth.isAuthed()) {
 			auth.logout();
 			return false;
@@ -182,9 +206,19 @@ noteApp.factory('$auth', function($window,$state,toastr) {
 	auth.saveToken = function(token) {
 		$window.sessionStorage.setItem('token', token);
 	};
+	
+	auth.getUserDisplayName = function() {
+		if(auth.getUser()){
+			return auth.getUser().displayName;
+		}
+		return '';
+	};
 
 	auth.logout = function() {
+		$window.sessionStorage.removeItem('user');
 		$window.sessionStorage.removeItem('token');
+		angular.element("#welcomeUserName").html('');
+		$rootScope.loggedInUserDisplayName='';
 	};
 
 	auth.getToken = function() {
@@ -192,7 +226,7 @@ noteApp.factory('$auth', function($window,$state,toastr) {
 	};
 	
 	auth.checkLoginFromServer = function(status) {
-		if(status===401){
+		if(status && status===401){
 			auth.logout();
 			toastr.error('Your session has been invalid. Please login again.');
 			$state.go('login');
@@ -210,12 +244,20 @@ noteApp.factory('$auth', function($window,$state,toastr) {
 		}
 	}
 	auth.getUser = function(){
-		return $window.sessionStorage.getItem('user');
+		return JSON.parse($window.sessionStorage.getItem('user'));
 	}
 	
 	auth.setUser = function(user){
-		$window.sessionStorage.setItem('user', user);
+		$window.sessionStorage.setItem('user', JSON.stringify(user));
 	}
+	auth.isPrivilegeExists = function(privilageName){
+		var user = auth.getUser(); 
+		if(user && user.privilageCode){
+			return user.privilageCode.includes(privilageName);
+		}
+			return false;
+	}
+	
 	auth.encodeString = function (str) {
 	    // first we use encodeURIComponent to get percent-encoded UTF-8,
 	    // then we convert the percent encodings into raw bytes which
@@ -231,8 +273,78 @@ noteApp.factory('$auth', function($window,$state,toastr) {
 		logout : auth.logout,
 		getToken : auth.getToken,
 		getUser : auth.getUser,
-		getUser : auth.setUser,
+		setUser : auth.setUser,
 		checkLoginFromServer:auth.checkLoginFromServer,
-		encodeString:auth.encodeString
-	}
+		encodeString:auth.encodeString,
+		isPrivilegeExists: auth.isPrivilegeExists
+	};
+	
+});
+
+noteApp.factory('WaitingDialog', function($window,$state,toastr) {
+	var $dialog = $(
+			'<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+			'<div class="modal-dialog modal-m">' +
+			'<div class="modal-content">' +
+				'<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+				'<div class="modal-body">' +
+					'<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+				'</div>' +
+			'</div></div></div>');
+	
+	var isOpen;
+
+	return {
+		// Creating modal dialog's DOM
+		/**
+		 * Opens our dialog
+		 * @param message Custom message
+		 * @param options Custom options:
+		 * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "sm", "m";
+		 * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
+		 */
+		show: function (message, options) {
+			// Assigning defaults
+			if (typeof options === 'undefined') {
+				options = {};
+			}
+			if (typeof message === 'undefined') {
+				message = 'Loading';
+			}
+			var settings = $.extend({
+				dialogSize: 'm',
+				progressType: '',
+				onHide: null // This callback runs after the dialog was hidden
+			}, options);
+
+			// Configuring dialog
+			$dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+			$dialog.find('.progress-bar').attr('class', 'progress-bar');
+			if (settings.progressType) {
+				$dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+			}
+			$dialog.find('h3').text(message);
+			// Adding callbacks
+			if (typeof settings.onHide === 'function') {
+				$dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+					settings.onHide.call($dialog);
+				});
+			}
+			// Opening dialog
+			$dialog.modal();
+			isOpen = true;
+		},
+		/**
+		 * Closes dialog
+		 */
+		hide: function () {
+			$dialog.modal('hide');
+			isOpen = false;
+		},
+		
+		isOpen: function(){
+			return isOpen;
+		}
+	};
+
 });

@@ -1,5 +1,12 @@
 package com.noteanalyzer.security.security.auth.ajax;
 
+import static com.noteanalyzer.mvc.constant.NoteConstant.BLOCKED_USER_CODE_UI;
+import static com.noteanalyzer.mvc.constant.NoteConstant.BLOCK_USER_FLAG;
+import static com.noteanalyzer.mvc.constant.NoteConstant.IN_ACTIVE_USER_FLAG;
+import static com.noteanalyzer.mvc.constant.NoteConstant.LOGIN_FAIL;
+import static com.noteanalyzer.mvc.constant.NoteConstant.LOGIN_SUCCESS;
+import static com.noteanalyzer.mvc.constant.NoteConstant.UNVERIFIED_USER_CODE_UI;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,14 +24,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import com.noteanalyzer.mvc.model.UserModel;
+import com.noteanalyzer.mvc.service.UserService;
 import com.noteanalyzer.mvc.service.impl.UserServiceImpl;
+import com.noteanalyzer.security.security.exceptions.UnverifiedUserException;
 import com.noteanalyzer.security.security.model.UserContext;
 
 
 @Component
 public class AjaxAuthenticationProvider implements AuthenticationProvider {
     private final BCryptPasswordEncoder encoder;
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
     @Autowired
     public AjaxAuthenticationProvider(final UserServiceImpl userService, final BCryptPasswordEncoder encoder) {
@@ -39,12 +48,17 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
         String username = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
         
-        System.out.println("Arvind "+username+", password "+password);
-
         UserModel user = userService.getByUsernameWithPassword(username).orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-        System.out.println("Userrrrr "+user);
+        if(user.getIsActive() == null || IN_ACTIVE_USER_FLAG.equalsIgnoreCase(user.getIsActive())){
+        	throw new UnverifiedUserException(UNVERIFIED_USER_CODE_UI);
+        }else if(BLOCK_USER_FLAG.equalsIgnoreCase(user.getIsActive())){
+        	throw new UnverifiedUserException(BLOCKED_USER_CODE_UI);
+        }
         if (!encoder.matches(password, user.getPassword())) {
+        	userService.updateUnsuccessfullAttempt(LOGIN_FAIL,user.getUserId(),user.getEmail());
             throw new BadCredentialsException("Authentication Failed. Username or Password not valid.");
+        }else{
+        	userService.updateUnsuccessfullAttempt(LOGIN_SUCCESS,user.getUserId(),user.getEmail());
         }
 
 /*        if (user.getRoles() == null) throw new InsufficientAuthenticationException("User has no roles assigned");

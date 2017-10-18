@@ -10,7 +10,11 @@
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script
 	src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.4/angular.min.js"></script>
-
+	<script
+		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB6lfbjsaLDihAIKq_mMXIhjCJYDZBlhXc&libraries=places"
+		async defer></script>
+ <link rel="stylesheet" href="static/css/jquery.calculator.css"/> 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/start/jquery-ui.min.css" /> 
 <link
 	href="https://cdnjs.cloudflare.com/ajax/libs/angular-toastr/2.1.1/angular-toastr.css"
 	rel="stylesheet" />
@@ -25,30 +29,19 @@
 	rel="stylesheet" />
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-formhelpers/2.3.0/css/bootstrap-formhelpers.css" />
+<link rel="stylesheet" href="static/lib/isteven-multi-select.css" />
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.7.1/css/xeditable.min.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/css/bootstrapValidator.min.css" />
 <link rel="shortcut icon" href="static/img/favicon.ico" />
 <link rel="styleSheet" href="static/css/app.css" />
-<link href="static/css/styles.css" rel="stylesheet">
+<link href="static/css/styles.css" rel="stylesheet"/>
 <link rel="styleSheet" href="static/css/custom.css" />
-<link rel="stylesheet" href="static/css/subscription-style.css">
-
-
-<style>
-/* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-#map {
-	height: 100%;
-}
-/* Optional: Makes the sample page fill the window. */
-html, body {
-	height: 100%;
-	margin: 0;
-	padding: 0;
-}
-</style>
+<link rel="stylesheet" href="static/css/subscription-style.css"/>
 <link type="text/css" rel="stylesheet"
-	href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
+	href="https://fonts.googleapis.com/css?family=Roboto:300,400,500"/>
+
+<!-- 
 <style>
 #locationField, #controls {
 	position: relative;
@@ -96,38 +89,47 @@ html, body {
 	height: 20px;
 	margin-bottom: 40px;
 }
-</style>
+</style> -->
 
 
 </head>
 <body>
-	<div ng-controller="NavbarCtrl"
-		class="navbar navbar-default navbar-static-top">
-		<div class="navbar-header">
-			<a class="navbar-brand" href="/"><i class="ion-ios7-pulse-strong"></i>
-				Note Analyzer</a>
-		</div>
-		<ul class="nav navbar-nav">
-			<li><a href="/notes/#!/">Home</a></li>
-			<li ng-if="isAuthenticated()"><a href="/notes/#!/profile">Profile</a></li>
-		</ul>
-		<ul ng-if="isAuthenticated()" class="nav navbar-nav">
-			<li><a href="/notes/#!/noteDashboard">My Dashboard</a></li>
-		</ul>
-		<ul ng-if="isAuthenticated()" class="nav navbar-nav">
-			<li><a href="/notes/#!/subscription">Subscription</a></li>
-		</ul>
-		<ul ng-if="!isAuthenticated()" class="nav navbar-nav pull-right">
-			<li><a href="/notes/#!/login">Login</a></li>
-			<li><a href="/notes/#!/signup">Sign up</a></li>
-		</ul>
-		<ul ng-if="isAuthenticated()" class="nav navbar-nav pull-right">
-			<li><a href="/notes/#!/logout">Logout</a></li>
-		</ul>
+<div ng-controller="NavbarCtrl">	
+ <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Menu</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <div><a class="navbar-brand" href="/notes/#!/" style="padding-top:0px;padding-left:110px;"><img src="static/img/note_unlimited.png" alt="Note Unlimited"></a></div>
+    </div>
 
-	</div>
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+       <!--  <li id="home" class="active"><a href="/notes/#!/"><span class="glyphicon glyphicon-home"></span> Home <span class="sr-only">(current)</span></a></li> -->
+        <!-- <li id="myProfile" ng-if="isAuthenticated()"><a href="/notes/#!/profile"><span class="glyphicon glyphicon-user"></span> My Profile</a></li> -->
+       
+      </ul>
+     
+      <ul class="nav navbar-nav navbar-right">
+       	 <li id="noteDashboard" ng-if="isAuthenticated()"><a href="/notes/#!/noteDashboard"><span class="x-glyphicon x-glyphicon-th-list"></span> My Dashboard</a></li>
+         <li id="calculator"><a href="/notes/#!/calculator"><span class="x-glyphicon x-glyphicon-calendar"></span> Calculator</a></li>
+     	 <li id="login" ng-if="!isAuthenticated()"><a href="/notes/#!/login"><span class="x-glyphicon x-glyphicon-log-in"></span> Sign in</a></li>
+     	 <!-- <li  ng-if="!isAuthenticated()" class="orHomepage">or</li> -->
+		 <li id="signUp" ng-if="!isAuthenticated()"><a href="/notes/#!/signup"><span class="glyphicon x-glyphicon-user"></span> Join</a></li>
+     	 <li id="profile" ng-if="isAuthenticated()"><a href="/notes/#!/profile"><span class="glyphicon x-glyphicon-user"></span><span id="welcomeUserName"> {{loggedInUserDisplayName}}</span></a></li>
+		 <li id="logout" ng-if="isAuthenticated()"><a href="/notes/#!/logout"><span class="x-glyphicon x-glyphicon-log-out"></span> Logout</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+</div>
+ 
 
-	<div ui-view></div>
+ <div ui-view></div>
 
 	<!-- Third-party Libraries -->
 
@@ -143,7 +145,6 @@ html, body {
 
 	<script
 		src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.4/angular-sanitize.min.js"></script>
-	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.4.2/angular-ui-router.min.js"></script> -->
 	<script
 		src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.3/angular-ui-router.min.js"></script>
 	<script
@@ -158,10 +159,13 @@ html, body {
 		src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
 	<script
 		src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-formhelpers/2.3.0/js/bootstrap-formhelpers.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.5.3/js/bootstrapValidator.min.js"></script>
 	<script
 		src="https://cdnjs.cloudflare.com/ajax/libs/angular-xeditable/0.7.1/js/xeditable.min.js"></script>
 	<!--[if lt IE 9]><script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
-
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.min.js"></script> -->
+	<script src="static/lib/isteven-multi-select.js"></script>
+	
 	<!-- Application Code -->
 	<script src="static/note.js"></script>
 	<script src="static/js/directives/passwordStrength.js"></script>
@@ -172,86 +176,24 @@ html, body {
 	<script src="static/js/controller/signup.js"></script>
 	<script src="static/js/controller/logout.js"></script>
 	<script src="static/js/controller/profile.js"></script>
+	<script src="static/js/controller/noteDashboard.js"></script>
 	<script src="static/js/controller/noteDetail.js"></script>
 	<script src="static/js/service/userService.js"></script>
 	<script src="static/js/service/noteService.js"></script>
-	<script
-		src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDwnzVWUsuJbZVgt99rWIWYMGFcU4zq5bI&libraries=places"
-		async defer></script>
-	<script>
-      // This example displays an address form, using the autocomplete feature
-      // of the Google Places API to help users fill in the information.
-
-      // This example requires the Places library. Include the libraries=places
-      // parameter when you first load the API. For example:
-      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
-
-      var placeSearch, autocomplete;
-      var componentForm = {
-        street_number: 'short_name',
-        route: 'long_name',
-        locality: 'long_name',
-        administrative_area_level_1: 'short_name',
-        country: 'long_name',
-        postal_code: 'short_name'
-      };
-
-      function initAutocomplete() {
-        // Create the autocomplete object, restricting the search to geographical
-        // location types.
-        autocomplete = new google.maps.places.Autocomplete(
-            /** @type {!HTMLInputElement} */(document.getElementById('autocompleteGoogle')),
-            {types: ['geocode']});
-
-        // When the user selects an address from the dropdown, populate the address
-        // fields in the form.
-        autocomplete.addListener('place_changed', fillInAddress);
-      }
-
-      function fillInAddress() {
-        // Get the place details from the autocomplete object.
-        var place = autocomplete.getPlace();
-
-        for (var component in componentForm) {
-          document.getElementById(component).value = '';
-          document.getElementById(component).disabled = false;
-        }
-
-        // Get each component of the address from the place details
-        // and fill the corresponding field on the form.
-        for (var i = 0; i < place.address_components.length; i++) {
-          var addressType = place.address_components[i].types[0];
-          if (componentForm[addressType]) {
-            var val = place.address_components[i][componentForm[addressType]];
-            document.getElementById(addressType).value = val;
-          }
-        }
-      }
-
-      // Bias the autocomplete object to the user's geographical location,
-      // as supplied by the browser's 'navigator.geolocation' object.
-      function geolocate() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function(position) {
-            var geolocation = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude
-            };
-            var circle = new google.maps.Circle({
-              center: geolocation,
-              radius: position.coords.accuracy
-            });
-            autocomplete.setBounds(circle.getBounds());
-          });
-        }
-      }
-    </script>
-
+	<script src="static/js/service/utilityService.js"></script>
+	<script src="static/js/utility/jquery.plugin.min.js"></script>
+	<script src="static/js/utility/jquery.calculator.js"></script>
+	
+	
+	
 </body>
 <script type="text/javascript">
 	angular.element(document).ready(function () {
-    	 angular.bootstrap(document, ['NoteApp']);
-    	 
+    angular.bootstrap(document, ['NoteApp']);
+    $(".nav li").on("click", function() {
+	      $(".nav li").removeClass("active");
+	      $(this).addClass("active");
+	 });
     });
 </script>
 

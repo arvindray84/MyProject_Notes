@@ -1,204 +1,229 @@
-var app = angular.module('NoteApp');
+var noteApp = angular.module('NoteApp');
+noteApp.controller('NoteDetailCtrl', function($scope, $stateParams, $state, $document, $auth, $http, toastr, $rootScope, noteUploadAPI, NoteService, UtilityService, $window, $filter, UserService) {
+	$scope.noteInputFormModel = NoteService.getNoteDetailModel();
+	if ($scope.noteInputFormModel && $scope.noteInputFormModel.noteId) {
+		$window.localStorage.setItem('noteId', $scope.noteInputFormModel.noteId);
+	} else {
+		NoteService.getNoteDetail($window.localStorage.getItem('noteId')).then(function(response) {
+			NoteService.setNoteDetailModel(response);
+			$scope.noteInputFormModel = NoteService.getNoteDetailModel();
+			$scope.convertNumberFilter();
+			$scope.populateDefaultPropertyType();
+		}, function(response) {
+			$auth.checkLoginFromServer(response.status);
+			toastr.error("We are unable to find details for this note. Please try after sometime.")
+		});
+	}
 
-app.controller('NoteDetailCtrl', NoteDetailCtrl);
-app.controller('RowEditCtrl', RowEditCtrl);
-app.service('RowEditor', RowEditor);
+	$scope.isSubscribed = function() {
+		var user = $auth.getUser();
+		if (user && "P1" == user.subscriptionName) {
+			return true;
+		}
+		return false;
+	}
 
-NoteDetailCtrl.$inject = ['$scope', '$http','$auth', '$rootScope', '$uibModal', 'RowEditor', 'uiGridConstants', 'noteDetailModel','noteUploadAPI','NoteService'];
-function NoteDetailCtrl($scope, $http,$auth, $rootScope, $uibModal, RowEditor, uiGridConstants, noteDetailModel,noteUploadAPI,NoteService) {
-  var vm = this;
-  $scope.noteDetailModel = noteDetailModel;
-  vm.editRow = RowEditor.editRow;
-  vm.noteAnalyzer = function() {
-		NoteService.noteAnalyze(vm.inputZipCode);
+	$scope.propertyTypeChange = function() {
+		if ($scope.noteInputFormModel) {
+			var selectedPropertyType = $scope.noteInputFormModel.selPropType;
+			if (selectedPropertyType == 'DUPLEX' || selectedPropertyType == 'FOURPLEX' || selectedPropertyType == 'APARTMENT' || selectedPropertyType == 'TRIPLEX') {
+				angular.element(document.querySelector('#numberOfUnits')).removeAttr('disabled');
+			} else {
+				angular.element(document.querySelector('#numberOfUnits')).attr('disabled', 'disabled');
+				angular.element(document.querySelector('#numberOfUnits')).val('');
+			}
+
+			if (selectedPropertyType == 'TH' || selectedPropertyType == 'CONDO') {
+				angular.element(document.querySelector('#hoaFees')).removeAttr('disabled');
+			} else {
+				angular.element(document.querySelector('#hoaFees')).attr('disabled', 'disabled');
+				angular.element(document.querySelector('#hoaFees')).val('');
+			}
+		}
+	}
+
+	$scope.populateDefaultPropertyType = function() {
+		if ($scope.noteInputFormModel.propTypeList) {
+			$scope.noteInputFormModel.selPropType = $scope.noteInputFormModel.selPropType || $scope.noteInputFormModel.propTypeList[0].propertyTypeCode;
+			$scope.propertyTypeChange();
+		}
+	}
+
+	$scope.sanitizeNoteInputModelFromJS = function() {
+		$scope.noteInputFormModel.rate = $filter('sanitizeInput')($scope.noteInputFormModel.rate);
+		$scope.noteInputFormModel.upb = $filter('sanitizeInput')($scope.noteInputFormModel.upb);
+		$scope.noteInputFormModel.pdiPayment = $filter('sanitizeInput')($scope.noteInputFormModel.pdiPayment);
+		$scope.noteInputFormModel.tdiPayment = $filter('sanitizeInput')($scope.noteInputFormModel.tdiPayment);
+		$scope.noteInputFormModel.originalPrincipleBalance = $filter('sanitizeInput')($scope.noteInputFormModel.originalPrincipleBalance);
+		$scope.noteInputFormModel.notePrice = $filter('sanitizeInput')($scope.noteInputFormModel.notePrice);
+		$scope.noteInputFormModel.originalPropertyValue = $filter('sanitizeInput')($scope.noteInputFormModel.originalPropertyValue);
+		$scope.noteInputFormModel.estimatedMarketValue = $filter('sanitizeInput')($scope.noteInputFormModel.estimatedMarketValue);
+		$scope.noteInputFormModel.propertyDetailModel.marketValue = $filter('sanitizeInput')($scope.noteInputFormModel.propertyDetailModel.marketValue);
+		$scope.noteInputFormModel.propertyDetailModel.lastSoldPrice = $filter('sanitizeInput')($scope.noteInputFormModel.propertyDetailModel.lastSoldPrice);
+	}
+
+	$scope.convertNumberFilter = function() {
+		if ($scope.noteInputFormModel) {
+			$scope.noteInputFormModel.upb = $filter('number')($scope.noteInputFormModel.upb);
+			$scope.noteInputFormModel.pdiPayment = $filter('number')($scope.noteInputFormModel.pdiPayment);
+			$scope.noteInputFormModel.tdiPayment = $filter('number')($scope.noteInputFormModel.tdiPayment);
+			$scope.noteInputFormModel.originalPrincipleBalance = $filter('number')($scope.noteInputFormModel.originalPrincipleBalance);
+			$scope.noteInputFormModel.notePrice = $filter('number')($scope.noteInputFormModel.notePrice);
+			$scope.noteInputFormModel.originalPropertyValue = $filter('number')($scope.noteInputFormModel.originalPropertyValue);
+			$scope.noteInputFormModel.estimatedMarketValue = $filter('number')($scope.noteInputFormModel.estimatedMarketValue);
+			if (!isNaN($scope.noteInputFormModel.propertyDetailModel.marketValue) && angular.isNumber(+$scope.noteInputFormModel.propertyDetailModel.marketValue)) {
+				$scope.noteInputFormModel.propertyDetailModel.marketValue = $filter('number')($scope.noteInputFormModel.propertyDetailModel.marketValue);
+			}
+			if (!isNaN($scope.noteInputFormModel.propertyDetailModel.lastSoldPrice) && angular.isNumber(+$scope.noteInputFormModel.propertyDetailModel.lastSoldPrice)) {
+				$scope.noteInputFormModel.propertyDetailModel.lastSoldPrice = $filter('number')($scope.noteInputFormModel.propertyDetailModel.lastSoldPrice);
+			}
+		}
+	}
+
+	$scope.convertNumberFilter();
+
+	$scope.populateNoteInputModelFromJS = function(){
+		angular.element( document.querySelector('.modifiedField')).trigger('change');
+		angular.element( document.querySelector('#originalTermId')).removeClass('noteInputCalculatedField');
+		angular.element( document.querySelector('#orginalLoanBalanceId')).removeClass('noteInputCalculatedField');
+		angular.element( document.querySelector('#interestRateId')).removeClass('noteInputCalculatedField');
+		//angular.element( document.querySelector('#paymentId')).removeClass('noteInputCalculatedField');
+		$scope.noteInputFormModel.pdiPayment = '';
+		var model = $scope.noteInputFormModel;
+		var elem = NoteService.notePaymentCalculator(model);
+		$scope.noteInputFormModel = model;
+		if(elem == 'rate'){
+			angular.element( document.querySelector('#interestRateId')).addClass('noteInputCalculatedField');
+		}else if(elem == 'pdiPayment'){
+			angular.element( document.querySelector('#paymentId')).addClass('noteInputCalculatedField');
+			angular.element( document.querySelector('#pdiPayment')).attr('readonly','readonly');
+		}else if(elem == 'originalTerm'){
+			angular.element( document.querySelector('#originalTermId')).addClass('noteInputCalculatedField');
+		}else if(elem == 'originalPrincipleBalance'){
+			angular.element( document.querySelector('#orginalLoanBalanceId')).addClass('noteInputCalculatedField');
+		}
+		$scope.populateUPBFromJS();
 	};
-	  
-  $scope.uploadFile = function() {
-	  NoteService.uploadNoteFile($scope.myFile, noteUploadAPI);
-  };
-
-  vm.serviceGrid = {
-    enableRowSelection: true,
-    enableRowHeaderSelection: false,
-    multiSelect: false,
-    enableSorting: true,
-    enableFiltering: true,
-    enableGridMenu: false,
-    rowHeight: 100,
-  /*        enablePaginationControls:true,
-          paginationPageSizes: [10,25, 50, 75],
-          paginationPageSize: 10,
-          
-  */ /*rowTemplate : "<div ng-dblclick=\"grid.appScope.vm.editRow(grid, row)\" ng-repeat=\"(colRenderIndex, col) in colContainer.renderedColumns track by col.colDef.name\" class=\"ui-grid-cell\" ng-class=\"{ 'ui-grid-row-header-cell': col.isRowHeader }\" ui-grid-cell></div>"*/
-  };
-
-  vm.serviceGrid.columnDefs = [{
-    field: 'assetImageURL',
-    displayName: 'Asset Image',
-    enableSorting: false,
-    enableCellEdit: false,
-    enableFiltering: false,
-    cellTemplate: "<div ng-click='grid.appScope.vm.editRow(grid, row)'><img width=\"100px\" ng-src=\"{{row.entity.assetImgSrc}}\" lazy-src  class=\"img-responsive\"/></div>"
-  }, {
-    field: 'yield',
-    displayName: 'Yield',
-    enableSorting: true,
-    enableCellEdit: false,
-    cellTemplate: "<div>{{row.entity.yield}}</div>"
-  }, {
-    field: 'itv',
-    displayName: 'ITV',
-    enableSorting: true,
-    enableCellEdit: false,
-    cellTemplate: "<div>{{row.entity.itv}}</div>"
-  }, {
-    field: 'ltv',
-    displayName: 'LTV',
-    enableSorting: true,
-    enableCellEdit: false,
-    cellTemplate: "<div>{{row.entity.ltv}}</div>"
-  }, {
-    field: 'marketValue',
-    displayName: 'Market Value',
-    enableSorting: true,
-    enableCellEdit: false,
-    cellTemplate: "<div>{{row.entity.marketValue}}</div>"
-  }, {
-    field: 'crime',
-    displayName: 'Crime',
-    enableSorting: true,
-    enableCellEdit: false,
-    cellTemplate: "<div>{{row.entity.crime}}</div>"
-  }, {
-    field: 'overAllScore',
-    displayName: 'OverAll Score',
-    enableSorting: true,
-    enableCellEdit: false,
-    sort: {
-      direction: uiGridConstants.ASC,
-      priority: 1,
-    },
-    cellTemplate: "<div>{{row.entity.overAllScore}}</div>"
-  }];
-
-  $http.get('api/fetchAllNotes').then(function(response) {
-	  $scope.vm.serviceGrid.data = response.data;
-  }, function(response) {
-	  $scope.vm.serviceGrid.data = [];
-	  $auth.checkLoginFromServer(response.status);
-  });
-
-  $scope.addRow = function() {
-    var newService = {
-      "assetImageURL": "0",
-      "yield": "public",
-      "itv": "http://bced.wallonie.be/services/",
-      "ltv": "-",
-      "marketValue": "-",
-      "crime": "//*[local-name()='-']/text()",
-      "overAllScore": "BCED"
-    };
-    var rowTmp = {};
-    rowTmp.entity = newService;
-    vm.editRow($scope.vm.serviceGrid, rowTmp);
-  };
-
-}
-
-RowEditor.$inject = ['$http', '$rootScope', '$uibModal'];
-function RowEditor($http, $rootScope, $uibModal) {
-  var service = {};
-  service.editRow = editRow;
-
-  function editRow(grid, row) {
-    $uibModal.open({
-      templateUrl: 'static/template/note-detail.html',
-      controller: ['$http','$scope', '$uibModalInstance', 'grid','noteDetailModel', 'row','NoteService','toastr', RowEditCtrl],
-      controllerAs: 'editCtrl',
-      resolve: {
-        grid: function() {
-          return grid;
-        },
-        row: function() {
-          return row;
-        }
-      }
-    });
-  }
-
-  return service;
-}
-
-function RowEditCtrl($http,$scope, $uibModalInstance, grid,noteDetailModel, row,NoteService,toastr) {
-	var editCtrl = this;
-	NoteService.getNoteDetail(row.entity.noteId).then(function(response){
-		$scope.noteDetailModel = response.data;
-	},function(response){
-		toastr.error("Unable to fetch the note detail. Please try after sometime");
-		$uibModalInstance.close(row.entity);
-	});
 	
-	editCtrl.removeNote= function(){
-		console.log('delete Notes..');
-		NoteService.deleteNote(row.entity.noteId).then(function(response){
-			toastr.success("Note is deleted successfully");
-			$uibModalInstance.close(row.entity);
-		},function(response){
-			toastr.error("Unable to delete the note. Please try after sometime");
+	
+	$scope.populateUPBFromJS = function(){
+		angular.element( document.querySelector('#interestRateId')).removeClass('noteInputCalculatedField');
+		//angular.element( document.querySelector('#paymentId')).removeClass('noteInputCalculatedField');
+		angular.element( document.querySelector('#unpaidBalanceId')).removeClass('noteInputCalculatedField');
+		angular.element( document.querySelector('#remainingNoOfPaymentId')).removeClass('noteInputCalculatedField');
+			var sampleNoteModel = {
+					  pdiPayment:$scope.noteInputFormModel.pdiPayment,
+					originalTerm:$scope.noteInputFormModel.remainingPayment,
+						  	rate:$scope.noteInputFormModel.rate
+			}
+			NoteService.noteOriginalBalCalculator(sampleNoteModel);
+			var unPaidBal = sampleNoteModel.originalPrincipleBalance;
+			if(unPaidBal){
+				$scope.noteInputFormModel.upb = sampleNoteModel.originalPrincipleBalance;
+				angular.element( document.querySelector('#unpaidBalanceId')).addClass('noteInputCalculatedField');	
+			}
+	}
+
+	
+	$scope.populateRemainingNumberOfPayment = function(){
+		if($scope.noteInputFormModel && $scope.noteInputFormModel.noteDate &&$scope.noteInputFormModel.noteDate.length==10 
+				&& $scope.noteInputFormModel.lastPaymentRecievedDate && $scope.noteInputFormModel.lastPaymentRecievedDate.length==10){
+			$scope.noteInputFormModel.noteDate = $filter('date')($scope.noteInputFormModel.noteDate, 'MM/dd/yyyy');
+			$scope.noteInputFormModel.lastPaymentRecievedDate = $filter('date')($scope.noteInputFormModel.lastPaymentRecievedDate, 'MM/dd/yyyy');
+			var numberOfMonth =  UtilityService.getNumberOfMonth(new Date($scope.noteInputFormModel.noteDate), new Date($scope.noteInputFormModel.lastPaymentRecievedDate));
+			if($scope.noteInputFormModel.originalTerm && $scope.noteInputFormModel.noteDate && $scope.noteInputFormModel.lastPaymentRecievedDate){
+				if(numberOfMonth>0){
+					$scope.noteInputFormModel.remainingPayment = $scope.noteInputFormModel.originalTerm - numberOfMonth;	
+				}else{
+					$scope.noteInputFormModel.remainingPayment = $scope.noteInputFormModel.originalTerm;
+				}
+				
+				$scope.populateUPBFromJS();
+			}
+		}
+	}
+
+	$scope.cancel = function() {
+		$scope.noteInputFormModel = {};
+		$state.go('noteDashboard');
+	}
+
+
+	$scope.updateOrginalTerm = function() {
+		if ($scope.noteInputFormModel && $scope.noteInputFormModel.loanTypeList) {
+			var len = $scope.noteInputFormModel.loanTypeList.length;
+			for (var i = 0; i < len; i++) {
+				var loanTypeCode = $scope.noteInputFormModel.loanTypeList[i].loanTypeCode;
+				if (loanTypeCode == $scope.noteInputFormModel.selLoanType) {
+					$scope.noteInputFormModel.originalTerm = $scope.noteInputFormModel.loanTypeList[i].termMonths;
+					break;
+				}
+			}
+		}
+	}
+
+	$scope.saveNote = function() {
+		$scope.sanitizeNoteInputModelFromJS();
+		$scope.noteInputFormModel.noteDate = $filter('date')($scope.noteInputFormModel.noteDate, 'MM/dd/yyyy');
+		$scope.noteInputFormModel.lastPaymentRecievedDate = $filter('date')($scope.noteInputFormModel.lastPaymentRecievedDate, 'MM/dd/yyyy');
+		NoteService.getYield($scope.noteInputFormModel);
+		NoteService.updateNote($scope.noteInputFormModel).then(function(response) {
+			$scope.noteInputFormModel = response;
+			$scope.convertNumberFilter();
+			toastr.success("Note has been save successfully.")
+		}, function(response) {
+			$auth.checkLoginFromServer(response.status);
+			toastr.error("We are unable to save note. Please try after sometime.")
 		});
+
 	}
-	editCtrl.saveNote= function(data){
-		console.log('save Notes.. '+data+'  note'+noteDetailModel.rate);
-		NoteService.editNote($scope.noteDetailModel).then(function(response){
-			$scope.noteDetailModel = noteDetailModel;
-			toastr.success("Note is updated successfully");
-			$uibModalInstance.close(row.entity);
-		},function(response){
-			toastr.error("Unable to save the note. Please try after sometime");
+
+	$scope.updateAndSaveMarketValue = function() {
+		$scope.sanitizeNoteInputModelFromJS();
+		NoteService.getYield($scope.noteInputFormModel);
+		$scope.noteInputFormModel.noteDate = $filter('date')($scope.noteInputFormModel.noteDate, 'MM/dd/yyyy');
+		$scope.noteInputFormModel.lastPaymentRecievedDate = $filter('date')($scope.noteInputFormModel.lastPaymentRecievedDate, 'MM/dd/yyyy');
+		NoteService.updateAndSaveMarketValue($scope.noteInputFormModel).then(function(response) {
+			$scope.noteInputFormModel = response;
+			$scope.convertNumberFilter();
+			toastr.success("Note has been updated successfully.")
+		}, function(response) {
+			$auth.checkLoginFromServer(response.status);
+			toastr.error("We are unable to find details for this note. Please try after sometime.")
+		})
+	}
+
+	$scope.subscribeNote = function() {
+		$scope.sanitizeNoteInputModelFromJS();
+		$scope.noteInputFormModel.noteDate = $filter('date')($scope.noteInputFormModel.noteDate, 'MM/dd/yyyy');
+		$scope.noteInputFormModel.lastPaymentRecievedDate = $filter('date')($scope.noteInputFormModel.lastPaymentRecievedDate, 'MM/dd/yyyy');
+		NoteService.getYield($scope.noteInputFormModel);
+		UserService.updateSubscription().then(function(response) {
+			$auth.setUser(response);
+			NoteService.subscribeNote($scope.noteInputFormModel).then(function(response) {
+				$scope.noteInputFormModel = response;
+				$scope.convertNumberFilter();
+				toastr.success("Note has been updated successfully.")
+			}, function(response) {
+				$auth.checkLoginFromServer(response.status);
+				toastr.error("We are unable to update note. Please try after sometime.")
+			})
+		}, function(response) {
+			$auth.checkLoginFromServer(response.status);
+			toastr.error("We are unable to update user subscripton. Please try after sometime.")
 		});
+
 	}
 
-	$scope.checkName = function(data){
-		console.log('name  check Nname.'+data);
-		
+
+	$scope.deleteNote = function() {
+		NoteService.deleteNote($scope.noteInputFormModel).then(function(response) {
+			$state.go('noteDashboard');
+			toastr.success("Note has been deleted successfully.")
+		}, function(response) {
+			$auth.checkLoginFromServer(response.status);
+			toastr.error("We are unable to delete this note. Please try after sometime.")
+		});
+
 	}
-	
-	
-/*	
-	 vm.entity = angular.copy(row.entity);
-  vm.save = save;
-  function save() {
-    if (row.entity.id == '0') {
-      
-       * $http.post('http://localhost:8080/service/save', row.entity).success(function(response) { $uibModalInstance.close(row.entity); }).error(function(response) { alert('Cannot edit row (error in console)'); console.dir(response); });
-       
-      row.entity = angular.extend(row.entity, vm.entity);
-      //real ID come back from response after the save in DB
-      row.entity.id = Math.floor(100 + Math.random() * 1000);
-
-      grid.data.push(row.entity);
-
-    } else {
-      row.entity = angular.extend(row.entity, vm.entity);
-    
-     * $http.post('http://localhost:8080/service/save', row.entity).success(function(response) { $uibModalInstance.close(row.entity); }).error(function(response) { alert('Cannot edit row (error in console)'); console.dir(response); });
-     
-    }
-    $uibModalInstance.close(row.entity);
-  }
-
- // vm.remove = remove;
-  function remove() {
-    console.dir(row)
-    if (row.entity.id != '0') {
-      row.entity = angular.extend(row.entity, vm.entity);
-      var index = grid.appScope.vm.serviceGrid.data.indexOf(row.entity);
-      grid.appScope.vm.serviceGrid.data.splice(index, 1);
-    
-     * $http.delete('http://localhost:8080/service/delete/'+row.entity.id).success(function(response) { $uibModalInstance.close(row.entity); }).error(function(response) { alert('Cannot delete row (error in console)'); console.dir(response); });
-     
-    }
-    $uibModalInstance.close(row.entity);
-  }*/
-
-}
+});

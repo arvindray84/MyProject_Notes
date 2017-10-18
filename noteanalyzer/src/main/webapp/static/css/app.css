@@ -65,23 +65,23 @@ div.block .input{
      padding-top: 10px;
 }
 .noteAnalyzerTextBox{
- line-height:25px;
+ line-height:28px;
  font-size:14px;
- width:25rem;
+ width:24rem;
  padding-left:10px;
  margin-left:5px;
  vertical-align:middle;
  
 }
+
 .noteAnalyzerUploadClass{
 	width: 50%; 
 	float: right; 
-	padding-left: 15%
+	padding-left: 8%
 }
 .noteAnalyzerTextClass{
 	width: 50%; 
 	float: left; 
-	padding-left: 5%; 
 	
 }
 .noteFileUploadBatch{
@@ -89,15 +89,14 @@ div.block .input{
     padding-top: 10px;
     width: 20rem;
 }
-.noteDateClass{
-	margin-left:4px;
-}
+
 .noteDateAligment{
 	float:left;
+	
 }
 .noteDateCalAligment{
 	float:left;
-	width:4%;
+	width:10%;
 }
 .calButton{
 	margin-left: 2px !important;
@@ -130,3 +129,181 @@ div.block .input{
 	float:left;
 	margin:10px;
 }
+
+.notesuccess{
+	border: 2px solid green;
+}
+
+.noteError{
+	border: 2px solid red;
+}
+
+.searchDashboard{
+	padding-top:13px;
+}
+
+.icon-text{
+	float:left;
+	width:80%;
+}
+
+.icon-img{
+	vertical-align:bottom;
+}
+.help-block {
+	float:left;
+}
+
+.noteDetailContainer{
+	background:white;
+	width:98%;
+}
+
+.noteDetailContainer > .panel-heading{
+	text-transform:none !important;
+}
+#accordion{
+	margin-top: 20px;
+}
+.ui-grid-row.ui-grid-row-selected > [ui-grid-row] > .ui-grid-cell{
+	background-color:skyblue;
+}
+.noteDetailClass.panel-heading  {
+    text-transform : none !important;
+}
+
+.noteDetailClass.panel-heading.active {
+    background-color: #a2dfc7 !important;
+}
+
+
+.uiGridCellClass{
+	vertical-align:middle;
+	padding-left:8px;
+	text-align:center;
+}
+.addressHeaderClass{
+	text-align:center;
+}
+
+.openall, .closeall{
+	margin-left:13px;
+	margin-top:7px;
+}
+
+.ui-grid-pager-max-pages-number > .abbr[title]{
+    border-bottom: 0px !important;
+    text-decoration: none !important;
+}
+
+.form-control-static{
+	float:left;
+}
+
+.panel{
+	border-color: lightskyblue !important;
+}
+
+.watermark {
+    position: absolute;
+    top : 80px;
+    opacity: 0.25;
+    font-size: 2em;
+    width: 100%;
+    text-align: center;
+    z-index: 1000;
+}
+
+.center-form {
+  width: 330px;
+  margin: 4% auto;
+}
+
+.signup-or-separator {
+  position: relative;
+  height: 34px;
+  text-align: center;
+  background: none;
+}
+
+.signup-or-separator hr {
+  width: 90%;
+  margin: -16px auto 10px auto;
+  border-top: 1px solid #dce0e0;
+}
+
+.signup-or-separator .text {
+  display: inline-block;
+  padding: 8px;
+  margin: 0;
+  background-color: #fff;
+}
+
+
+.password-strength-indicator {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  width: 5px;
+  padding: 0 15px;
+}
+
+.password-strength-indicator span {
+  display: block;
+  width: 5px;
+  height: 5px;
+  margin-bottom: 2px;
+  background: #ebeef1;
+  border-radius: 5px;
+}
+
+[class^='ion-'] {
+  font-size: 1.2em;
+}
+
+.navbar-default {
+    background-color: white;
+    border-color: lightskyblue;
+}
+
+.input-group-addon{
+	padding:3px 6px;
+}
+.noteInputCalculatedField{
+	font-style: italic;	
+}
+.panel-heading{
+    font-size: 22px;
+    font-weight: 600;
+}
+.col-sm-1{
+	padding-right:5px;
+}
+
+.control-label{
+	padding-left:0px;
+}
+
+.orHomepage{
+	color: #EA2127;
+    font-weight: 800;
+    line-height: 20px;
+    padding-top: 15px;
+}
+.navbar-header{
+	    min-height: 100px;
+}
+
+.navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
+    color: #EA2127;
+    font-weight: 600;
+    background-color: white;
+}
+
+@media(min-width: 768px){
+.navbar-nav>li>a {
+   padding-top:75px;
+   padding-bottom:5px;
+}
+}
+

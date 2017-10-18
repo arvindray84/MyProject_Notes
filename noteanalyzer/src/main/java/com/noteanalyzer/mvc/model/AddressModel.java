@@ -1,10 +1,11 @@
 package com.noteanalyzer.mvc.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
-
-public class AddressModel implements Serializable {
+public class AddressModel extends RequestStatusModel implements Serializable {
 	
 	/**
 	 * 
@@ -15,6 +16,9 @@ public class AddressModel implements Serializable {
 	private String city;
 	private String state;
 	private String zipCode;
+	private Set<String> cityList = new HashSet<>();
+	private Set<String> stateList = new HashSet<>();
+	
 	/**
 	 * @return the streetAddress
 	 */
@@ -63,14 +67,43 @@ public class AddressModel implements Serializable {
 	public void setZipCode(String zipCode) {
 		this.zipCode = zipCode;
 	}
+	
+	
+	
+	/**
+	 * @return the cityList
+	 */
+	public Set<String> getCityList() {
+		return cityList;
+	}
+	/**
+	 * @param cityList the cityList to set
+	 */
+	public void setCityList(Set<String> cityList) {
+		this.cityList = cityList;
+	}
+	/**
+	 * @return the stateList
+	 */
+	public Set<String> getStateList() {
+		return stateList;
+	}
+	/**
+	 * @param stateList the stateList to set
+	 */
+	public void setStateList(Set<String> stateList) {
+		this.stateList = stateList;
+	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "Address [streetAddress=" + streetAddress + ", city=" + city + ", state=" + state + ", zipCode="
-				+ zipCode + "]";
+		return "AddressModel [streetAddress=" + streetAddress + ", city=" + city + ", state=" + state + ", zipCode="
+				+ zipCode + ", cityList=" + cityList + ", stateList=" + stateList + "]";
 	}
+	
+	
 	
 	
 }

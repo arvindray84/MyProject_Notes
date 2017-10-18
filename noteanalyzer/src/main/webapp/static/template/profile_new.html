@@ -1,0 +1,182 @@
+<div class="container">
+	<div class="panel panel-default">
+		<div class="panel-heading">Profile</div>
+		<div class="panel-body">
+			<legend>
+				<i class="ion-clipboard"></i> Edit My Profile
+			</legend>
+
+			<form id="regForm" method="post" class="form-horizontal">
+				<div class="form-group">
+					<label class="col-lg-2 control-label requiredField">Email Address</label>
+					<div class="col-lg-3">
+						<input type="text" class="form-control icon-text" name="email"
+							ng-model="userModel.email" readonly />
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-lg-2 control-label requiredField">Full Name</label>
+					<div class="col-lg-3">
+						<input type="text" class="form-control icon-text" name="displayName"
+							placeholder="Enter your Full name" ng-model="userModel.displayName" />
+					</div>
+
+				</div>
+
+				<div class="form-group">
+					<label class="col-lg-2 control-label">Zip
+						Code</label>
+					<div class="col-lg-3 zipCode">
+						<input type="text" class="form-control icon-text" name="zipCode"
+							ng-model="userModel.zipCode" placeholder="Enter Zip Code" ng-blur="populateCityState()" />
+						
+					</div>
+					<label class="col-lg-2 control-label">City</label>
+					<div class="col-lg-3 city">
+						<select class="form-control icon-text" name="city"
+							ng-init="userModel.selCity = userModel.selCity || userModel.addressModel.cityList[0]"
+							ng-model="userModel.selCity"
+							ng-options="city for city in userModel.addressModel.cityList">
+						</select>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-lg-2 control-label">Street
+						Address</label>
+					<div class="col-lg-3 streetAddress">
+						<input type="text" class="form-control icon-text"
+							name="streetAddress" placeholder="Enter Street Address"
+							ng-model="userModel.streetAddress" />
+					</div>
+					<label class="col-lg-2 control-label">State</label>
+					<div class="col-lg-3 state">
+						<select class="form-control icon-text" name="state"
+							ng-init="userModel.selState = userModel.selState || userModel.addressModel.stateList[0]"
+							ng-model="userModel.selState"
+							ng-options="state for state in userModel.addressModel.stateList">
+						</select>
+					</div>
+				</div>
+
+
+				<div class="form-group">
+					<label class="col-lg-2 control-label">Phone Number</label>
+					<div class="col-lg-3">
+						<input type="text" class="form-control icon-text" name="phoneNumber" ng-model="userModel.phoneNumber"
+							placeholder="Enter your Phone Number" />
+					</div>
+					<label class="col-lg-2 control-label"></label>
+					<div class="col-lg-3"></div>
+				</div>
+
+				<div class="form-group">
+					 <div class="col-lg-9 col-lg-offset-2">
+						<input type="button"  class="btn btn-success"
+							id="updateProfile" name="updateProfile" value="Update Profile"/>
+						<button class="btn btn-info" ng-click="changePassword()">Change
+							Password</button>
+						<input type="button" class="btn" style="visibility: hidden;"
+							id="updateProfileHidden" ng-click="updateProfile();"
+							name="updateProfileHidden" value="Create Note" />
+					</div>
+				</div>
+			</form>
+
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+    // Generate a simple captcha
+    function randomNumber(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+    $('#captchaOperation').html([randomNumber(1, 100), '+', randomNumber(1, 200), '='].join(' '));
+
+    $('#regForm').bootstrapValidator({
+//        live: 'disabled',
+        message: 'This value is not valid',
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+        	displayName: {
+        		message: 'The display name is not valid',
+                validators: {
+                    notEmpty: {
+                        message: 'The display name is required and cannot be empty'
+                    },
+                    stringLength: {
+                        min: 1,
+                        max: 50,
+                        message: 'The username must be more than 1 and less than 50 characters long'
+                    }/* ,
+                    regexp: {
+                        regexp: /^[a-zA-Z0-9_\.]+$/,
+                        message: 'The display name can only consist of alphabetical, number, dot and underscore'
+                    } */
+                }
+            },
+            email: {
+                validators: {
+                    notEmpty: {
+                        message: 'The email address is required and can\'t be empty'
+                    },
+                    emailAddress: {
+                        message: 'The input is not a valid email address'
+                    }
+                }
+            },
+            phoneNumber: {
+                validators: {
+                    phone: {
+                       country: 'US',
+                       message: 'The value is not valid %s phone number'                       
+                                }
+                            }
+             },streetAddress:{
+            	 validators: {
+	            	stringLength: {
+	                     min: 1,
+	                     max: 200,
+	                     message: 'The street Address must be less than 200 characters long'
+	            	 }
+             }},
+             zipCode: {
+                 validators: {
+                     zipCode: {
+                        country: 'US',
+                        message: 'The value is not valid %s US Zip Code'                       
+                                 }
+                             }
+              }/* ,
+            captcha: {
+                validators: {
+                    callback: {
+                        message: 'Wrong answer',
+                        callback: function(value, validator) {
+                            var items = $('#captchaOperation').html().split(' '), sum = parseInt(items[0]) + parseInt(items[2]);
+                            return value == sum;
+                        }
+                    }
+                }
+            } */
+        }
+    });
+
+		// Validate the form manually
+		$('#updateProfile').click(function() {
+			if ($('#regForm').bootstrapValidator('validate').has('.has-error').length) {
+				return false;
+			} else {
+				$("#updateProfileHidden").trigger("click");
+			};
+		});
+
+
+	});
+</script>

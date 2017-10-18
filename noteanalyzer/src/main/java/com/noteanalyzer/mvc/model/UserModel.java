@@ -1,12 +1,18 @@
 package com.noteanalyzer.mvc.model;
 
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
-public class UserModel {
+public class UserModel extends RequestStatusModel implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1229343341896851765L;
 
 	private long userId;
 	
@@ -16,15 +22,34 @@ public class UserModel {
 	
 	private AddressModel addressModel;
 	
+	private String zipCode;
+	
+	private String selCity;
+	
+	private String selState;
+	
 	private String email;
+	
+	private String streetAddress;
 	
 	private String phoneNumber;
 	
 	@JsonIgnore
 	private String resetToken;
+	
+	@JsonIgnore
+	private String verificationToken;
+	
 	@JsonIgnore
 	private ZonedDateTime resetCreationTime;
 	
+	@JsonIgnore
+	private String isActive;
+	
+	private String subscriptionName;
+	
+	private List<String> privilageCode;
+		
 	
 	private List<UserRoleModel> roles;
 	
@@ -39,7 +64,34 @@ public class UserModel {
 	}
 
 	
-	
+	/**
+	 * @return the privilageCode
+	 */
+	public List<String> getPrivilageCode() {
+		return privilageCode;
+	}
+
+	/**
+	 * @param privilageCode the privilageCode to set
+	 */
+	public void setPrivilageCode(List<String> privilageCode) {
+		this.privilageCode = privilageCode;
+	}
+
+	/**
+	 * @return the subscriptionName
+	 */
+	public String getSubscriptionName() {
+		return subscriptionName;
+	}
+
+	/**
+	 * @param subscriptionName the subscriptionName to set
+	 */
+	public void setSubscriptionName(String subscriptionName) {
+		this.subscriptionName = subscriptionName;
+	}
+
 	/**
 	 * @return the userId
 	 */
@@ -207,21 +259,96 @@ public class UserModel {
 	public void setRoles(List<UserRoleModel> roles) {
 		this.roles = roles;
 	}
+	
+	
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/**
+	 * @return the verificationToken
 	 */
-	@Override
-	public String toString() {
-		return "UserModel [userId=" + userId + ", displayName=" + displayName 
-				+ ", addressModel=" + addressModel + ", email=" + email + ", phoneNumber=" + phoneNumber
-				+ ", resetToken=" + resetToken + ", resetCreationTime=" + resetCreationTime + ", roles=" + roles + "]";
+	public String getVerificationToken() {
+		return verificationToken;
 	}
 
+	/**
+	 * @param verificationToken the verificationToken to set
+	 */
+	public void setVerificationToken(String verificationToken) {
+		this.verificationToken = verificationToken;
+	}
 	
 	
 
+	/**
+	 * @return the isActive
+	 */
+	public String getIsActive() {
+		return isActive;
+	}
+
+	/**
+	 * @param isActive the isActive to set
+	 */
+	public void setIsActive(String isActive) {
+		this.isActive = isActive;
+	}
+
+	/**
+	 * @return the zipCode
+	 */
+	public String getZipCode() {
+		return zipCode;
+	}
+
+	/**
+	 * @param zipCode the zipCode to set
+	 */
+	public void setZipCode(String zipCode) {
+		this.zipCode = zipCode;
+	}
+
+	/**
+	 * @return the selCity
+	 */
+	public String getSelCity() {
+		return selCity;
+	}
+
+	/**
+	 * @param selCity the selCity to set
+	 */
+	public void setSelCity(String selCity) {
+		this.selCity = selCity;
+	}
+
+	/**
+	 * @return the selState
+	 */
+	public String getSelState() {
+		return selState;
+	}
+
+	/**
+	 * @param selState the selState to set
+	 */
+	public void setSelState(String selState) {
+		this.selState = selState;
+	}
+
+	/**
+	 * @return the streetAddress
+	 */
+	public String getStreetAddress() {
+		return streetAddress;
+	}
+
+	/**
+	 * @param streetAddress the streetAddress to set
+	 */
+	public void setStreetAddress(String streetAddress) {
+		this.streetAddress = streetAddress;
+	}
 	
 	
-	
+
+
 }

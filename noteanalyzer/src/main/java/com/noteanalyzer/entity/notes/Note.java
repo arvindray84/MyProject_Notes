@@ -48,9 +48,6 @@ public class Note extends AbstractEntity {
 	@Column(name = "USER_ID")
 	private Long userId;
 
-	@Column(name = "SALE_PRICE")
-	private Double salePrice;
-
 
 	@Column(name = "NOTE_TYPE")
 	private String noteType;
@@ -213,21 +210,6 @@ public class Note extends AbstractEntity {
 	}
 
 
-	/**
-	 * @return the salePrice
-	 */
-	public Double getSalePrice() {
-		return salePrice;
-	}
-
-	/**
-	 * @param salePrice the salePrice to set
-	 */
-	public void setSalePrice(Double salePrice) {
-		this.salePrice = salePrice;
-	}
-
-	
 	/**
 	 * @return the noteType
 	 */
